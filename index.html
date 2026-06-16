@@ -1154,7 +1154,7 @@
         <div class="ps-summary-divider"></div>
         <div class="ps-summary-amount-row">
           <span class="ps-summary-currency">MWK</span>
-          <span class="ps-summary-amount" id="psSummaryAmount">100</span>
+          <span class="ps-summary-amount" id="psSummaryAmount">5,000</span>
         </div>
         <div class="ps-summary-footer">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="#2ecc71" opacity=".15" stroke="#2ecc71" stroke-width="1.8"/></svg>
@@ -1235,7 +1235,7 @@
   const CHARSET      = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
   const PAYMENT_LINK = 'https://pay.paychangu.com/SC-L2eT9U';
   const ADMIN_WA     = '265222206043';
-  const BROWSE_ACCESS_FEE = 5000; // MWK — one-time fee to unlock Browse Listings
+  const BROWSE_ACCESS_FEE = 10; // MWK — one-time fee to unlock Browse Listings
 
   // ═══════════════════════════════════════════════════════
   // STATE
@@ -2098,7 +2098,7 @@
       if(stkBodyEl)       stkBodyEl.textContent      = 'A payment prompt has been sent to your number. Please approve it now to unlock Browse Listings.';
     } else {
       if(summaryLabelEl) summaryLabelEl.textContent = 'Property Listing Fee';
-      if(summaryAmtEl)   summaryAmtEl.textContent   = '100';
+      if(summaryAmtEl)   summaryAmtEl.textContent   = '5000';
       if(stkBodyEl)       stkBodyEl.textContent      = 'A payment prompt has been sent to your number. Please approve it now to complete your listing.';
     }
 
