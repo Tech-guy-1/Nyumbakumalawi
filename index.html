@@ -2340,7 +2340,7 @@
     const endpoint = isBrowse ? 'activate-browse-access' : 'activate-property';
     const payload  = isBrowse
       ? { mobile: formattedPhone, provider: provider }
-      : { property_id: savedPropertyId, mobile: formattedPhone, provider: provider, amount: 100 };
+      : { property_id: savedPropertyId, mobile: formattedPhone, provider: provider, amount: 5000 };
 
     console.log('=== PAYMENT REQUEST ===');
     console.log('context:', nmPaymentContext);
