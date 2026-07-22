@@ -3822,11 +3822,39 @@
   })();
 
   // ═══════════════════════════════════════════════════════
-  // INITIAL ROUTE STATE — mark the home URL as the base history entry
-  // so the very first Back press has somewhere sane to land.
+  // INITIAL ROUTE STATE — if the visitor lands directly on a shareable
+  // sub-URL (e.g. someone opens the terms-and-conditions link that was
+  // shared with them), open that page immediately instead of silently
+  // resetting the address bar back to "/". Falls back to home for any
+  // route we can't safely reconstruct on a cold load (e.g. a specific
+  // property or an in-progress payment).
   // ═══════════════════════════════════════════════════════
   (function(){
-    try { window.history.replaceState({ nmRoute: 'home' }, '', NM_ROUTES.home); } catch(e){}
+    // Pages that are safe to open directly on a fresh page load —
+    // simple static/content pages with no dependency on prior app state.
+    // Note: Browse Listings / Browse Services are deliberately excluded —
+    // those go through the terms gate / access checks and shouldn't be
+    // openable directly from a bare URL.
+    const NM_DIRECT_LOAD_PAGES = {
+      '/terms-and-conditions': 'terms',
+      '/privacy-policy':       'privacy',
+      '/contact-us':           'contact'
+    };
+    try{
+      const path = window.location.pathname.replace(/\/$/, '') || '/';
+      const routeKey = NM_DIRECT_LOAD_PAGES[path];
+      if(routeKey){
+        // Replace (not push) so this becomes the base history entry —
+        // pressing Back from here will leave the site, which is expected
+        // since the visitor arrived via a direct/shared link.
+        window.history.replaceState({ nmRoute: routeKey }, '', NM_ROUTES[routeKey]);
+        showPage(routeKey);
+      } else {
+        window.history.replaceState({ nmRoute: 'home' }, '', NM_ROUTES.home);
+      }
+    } catch(e){
+      try { window.history.replaceState({ nmRoute: 'home' }, '', NM_ROUTES.home); } catch(e2){}
+    }
   })();
 
 
