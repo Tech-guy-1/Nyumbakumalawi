@@ -72,6 +72,9 @@
     /* BROWSE TERMS GATE — shown before entering Browse Listings */
     #browseTermsGate{display:none;position:fixed;inset:0;z-index:400;background:rgba(10,22,45,0.55);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);overflow-y:auto;}
     #browseTermsGate.show{display:block;}
+    /* FIND-A-HOUSE TERMS GATE — same look as the Browse Listings gate above */
+    #findHouseTermsGate{display:none;position:fixed;inset:0;z-index:400;background:rgba(10,22,45,0.55);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);overflow-y:auto;}
+    #findHouseTermsGate.show{display:block;}
     .btg-card{background:#fff;border-radius:20px;max-width:420px;margin:32px auto 40px;box-shadow:0 20px 60px rgba(0,0,0,0.35);padding:26px 22px 24px;}
     .btg-card h2{font-size:18px;color:#1a3a6b;margin-bottom:6px;}
     .btg-card>p.btg-sub{font-size:13px;color:#777;margin-bottom:16px;line-height:1.5;}
@@ -1186,7 +1189,7 @@
 
   <!-- NAV -->
   <nav id="navMenu">
-    <a href="#" onclick="showPage('findHouse');closeNav();return false;">Find me a House</a>
+    <a href="#" onclick="goFindHouse();closeNav();return false;">Find me a House</a>
     <a href="#" onclick="openListFlow();closeNav();return false;">List Your Property Now</a>
     <a href="#" onclick="goBrowseListings();closeNav();return false;">Browse Listings</a>
     <a href="#" onclick="showPage('browseServices');closeNav();return false;">Browse Services</a>
@@ -1198,7 +1201,7 @@
       <h1>Find or List Houses in Malawi</h1>
       <p>Verified listings from landlords and agents. One small, transparent fee. No exploitative viewing charges.</p>
       <div class="hero-buttons">
-        <button class="btn-green" onclick="showPage('findHouse')">Find me a House</button>
+        <button class="btn-green" onclick="goFindHouse()">Find me a House</button>
         <button class="btn-white" onclick="goBrowseListings()">Browse Listings</button>
       </div>
     </section>
@@ -1547,6 +1550,31 @@
       <div class="btg-btns">
         <button class="btg-continue" id="btgContinueBtn" disabled onclick="acceptTermsAndBrowse()">Continue to Browse</button>
         <button class="btg-cancel" onclick="closeBrowseTermsGate()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FIND-A-HOUSE TERMS GATE — shown every time before a visitor can enter Find Me a House -->
+  <div id="findHouseTermsGate">
+    <div class="btg-card">
+      <h2>Before You Continue</h2>
+      <p class="btg-sub">Please read a summary of our Terms and Conditions below. You must agree before using Find Me a House.</p>
+      <div class="btg-preview">
+        <h4>Personal Property Search</h4>
+        <p>Our team searches, screens and shortlists properties on your behalf. NyumbakuMalawi does not guarantee that a matching property will be found, nor the final rental outcome — verify all details before committing to a landlord or agent.</p>
+        <h4>Service Fee</h4>
+        <p>A one-time, non-refundable service fee of MK 5,000 is charged to begin your search. This fee is paid to NyumbakuMalawi and is separate from any deposit or fee a landlord or agent may later charge.</p>
+        <h4>User Conduct</h4>
+        <p>Users must provide accurate information about their search requirements, use the platform lawfully, and avoid fraudulent activity or misuse of any contacts shared with them.</p>
+      </div>
+      <span class="btg-fulllink" onclick="closeFindHouseTermsGate();showPage('terms');">Read the full Terms and Conditions</span>
+      <label class="btg-check-row" for="fhtgAgreeCheck">
+        <input type="checkbox" id="fhtgAgreeCheck" onchange="fhtgValidate()"/>
+        <span>I have read and agree to the Terms and Conditions and Privacy Policy.</span>
+      </label>
+      <div class="btg-btns">
+        <button class="btg-continue" id="fhtgContinueBtn" disabled onclick="acceptTermsAndFindHouse()">Continue</button>
+        <button class="btg-cancel" onclick="closeFindHouseTermsGate()">Cancel</button>
       </div>
     </div>
   </div>
@@ -2618,6 +2646,40 @@
     showPage('browse');
   }
 
+  // ── Terms-and-Conditions gate — must be accepted every single time
+  // before Find Me a House opens, exactly like the Browse Listings gate.
+  function goFindHouse(){
+    closeNav();
+    openFindHouseTermsGate();
+  }
+  function openFindHouseTermsGate(skipUrlUpdate){
+    const gate = document.getElementById('findHouseTermsGate');
+    const check = document.getElementById('fhtgAgreeCheck');
+    if(check) check.checked = false;
+    fhtgValidate();
+    gate.classList.add('show');
+    document.body.style.overflow = 'hidden';
+    if(!skipUrlUpdate) nmUpdateUrl('findHouseTerms');
+  }
+  function closeFindHouseTermsGate(){
+    const gate = document.getElementById('findHouseTermsGate');
+    if(gate) gate.classList.remove('show');
+    document.body.style.overflow = '';
+    nmUpdateUrl('home');
+  }
+  function fhtgValidate(){
+    const check = document.getElementById('fhtgAgreeCheck');
+    const btn   = document.getElementById('fhtgContinueBtn');
+    if(check && btn) btn.disabled = !check.checked;
+  }
+  function acceptTermsAndFindHouse(){
+    const check = document.getElementById('fhtgAgreeCheck');
+    if(!check || !check.checked) return;
+    document.getElementById('findHouseTermsGate').classList.remove('show');
+    document.body.style.overflow = '';
+    showPage('findHouse');
+  }
+
   function openBrowsePaymentStep(){
     nmPaymentContext = 'browse';
     var formOverlay = document.getElementById('formOverlay');
@@ -2644,6 +2706,7 @@
     browse:          '/browse-listings',
     browseServices:  '/browse-services',
     findHouse:       '/find-a-house',
+    findHouseTerms:  '/find-a-house/terms',
     propDetail:      '/browse-listings/property',
     viewDetails:     '/browse-listings/unlock',
     listProperty:    '/list-property',
@@ -2672,6 +2735,7 @@
       closePropPaywall();
       closePropDetail();
       closeBrowseTermsGate();
+      closeFindHouseTermsGate();
       ['browse','browseServices','findHouse','terms','privacy','contact'].forEach(hidePage);
       // Reset Find Me a House back to its starting screen for next time
       var fhPay = document.getElementById('fhPaymentScreen');
@@ -3849,6 +3913,12 @@
         // since the visitor arrived via a direct/shared link.
         window.history.replaceState({ nmRoute: routeKey }, '', NM_ROUTES[routeKey]);
         showPage(routeKey);
+      } else if(path === '/find-a-house'){
+        // Find Me a House always requires the terms gate first, even when
+        // arriving via a direct/shared link — so open the gate, not the
+        // page itself, and land the base history entry on its own gate URL.
+        window.history.replaceState({ nmRoute: 'findHouseTerms' }, '', NM_ROUTES.findHouseTerms);
+        openFindHouseTermsGate(true);
       } else {
         window.history.replaceState({ nmRoute: 'home' }, '', NM_ROUTES.home);
       }
@@ -4184,6 +4254,11 @@ function fhSendWhatsAppProof() {
   window.closeBrowseTermsGate = closeBrowseTermsGate;
   window.btgValidate        = btgValidate;
   window.acceptTermsAndBrowse = acceptTermsAndBrowse;
+  window.goFindHouse            = goFindHouse;
+  window.openFindHouseTermsGate = openFindHouseTermsGate;
+  window.closeFindHouseTermsGate = closeFindHouseTermsGate;
+  window.fhtgValidate           = fhtgValidate;
+  window.acceptTermsAndFindHouse = acceptTermsAndFindHouse;
   window.fhGoHome            = fhGoHome;
   window.fhHeaderBack        = fhHeaderBack;
   window.fhOpenPaymentScreen = fhOpenPaymentScreen;
